@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Discover World</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="prefs_file">com.utng.discoverw.PREFERENCE_FILE_KEY</string>
+    <!-- Log-In -->
+    <string name="app_login">Inicia con Google</string>
+    <string name="app_createBy">Create by Team @DINAMITA</string>
+    <string name="app_alert">Se ha producido un error autenticando al usuario</string>
+</resources>

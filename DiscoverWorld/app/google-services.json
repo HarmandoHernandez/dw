@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "870163984309",
+    "firebase_url": "https://discover-world-729f5.firebaseio.com",
+    "project_id": "discover-world-729f5",
+    "storage_bucket": "discover-world-729f5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870163984309:android:dc0c73022d18aac7d0f3fc",
+        "android_client_info": {
+          "package_name": "com.utng.discoverw"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "870163984309-prq1kvl2r47c599bo9hkd5d33pt9d193.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6gYG2XvwhGLQnqKg-Dre9XXM83eAKh2A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "870163984309-prq1kvl2r47c599bo9hkd5d33pt9d193.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
