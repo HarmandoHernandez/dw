@@ -7,45 +7,62 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
-// Autentificaciones permitidas en la APP
-enum class Providertype {
-    GOOGLE
-}
-
+// TODO : No permitir regresar al inicio de session.
 class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        // SETUP
+        account()
+        setup()
+        toProfile()
+        posts()
+    }
 
+    private fun account() {
+        // Save user's data
+        val bundle = intent.extras // TODO : delete bundle X2
+        val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
+        prefs.putString("email", bundle?.getString("email"))
+        prefs.putString("displayName", bundle?.getString("displayName"))
+        prefs.putString("photoUrl", bundle?.getString("photoUrl"))
+        prefs.apply()
+    }
+
+    private fun toProfile(){
         val fab: FloatingActionButton = findViewById(R.id.fab)
-
+        val bundle = intent.extras // TODO : delete bundle
         fab.setOnClickListener { view ->
             //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show()
-            val profileIntent = Intent(this, ProfileActivity::class.java)
+            val profileIntent = Intent(this, ProfileActivity::class.java).apply {
+                putExtra("email", bundle?.getString("email"))
+                putExtra("displayName", bundle?.getString("displayName"))
+                putExtra("photoUrl", bundle?.getString("photoUrl"))
+            }
             startActivity(profileIntent)
         }
+    }
 
-        // Setup
-        val bundle = intent.extras
-        val email = bundle?.getString("email")
-        val provider = bundle?.getString("provider")
-        setup(email ?: "", provider ?: "")
+    private fun setup() {
+        val btnLogOut = findViewById<Button>(R.id.btnLogOut)
 
-        // Guardar datos del usuario autenticado
-        val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
-        prefs.putString("email", email)
-        prefs.putString("provider", provider)
-        prefs.apply()
+        btnLogOut.setOnClickListener {
+            // Delete data
+            val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
+            prefs.clear()
+            prefs.apply()
+            FirebaseAuth.getInstance().signOut()
+            onBackPressed()
+        }
+    }
 
+    private fun posts() {
         // POSTS
         val postViewPager = findViewById<ViewPager2>(R.id.postViewPager)
-
         val postItems = arrayListOf<PostItem>()
-
         val postItemCelebration = PostItem()
         postItemCelebration.postURL = "http://www.infinityandroid.com/videos/video1.mp4"
         postItemCelebration.postTitle = "Celebration"
@@ -90,20 +107,6 @@ class HomeActivity : AppCompatActivity() {
 
         //postViewPager.setAdapter(PostAdapter(postItems))
         postViewPager.adapter = PostAdapter(postItems)
-
     }
 
-    private fun setup(email: String, provider: String) {
-        val btnLogOut = findViewById<Button>(R.id.btnLogOut)
-
-        btnLogOut.setOnClickListener {
-            // Delete data
-            val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
-            prefs.clear()
-            prefs.apply()
-
-            FirebaseAuth.getInstance().signOut()
-            onBackPressed()
-        }
-    }
 }
