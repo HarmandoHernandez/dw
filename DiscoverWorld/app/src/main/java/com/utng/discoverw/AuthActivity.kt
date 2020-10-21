@@ -68,10 +68,17 @@ class AuthActivity : AppCompatActivity() {
         //showProgressBar()
         // [END_EXCLUDE]
         try {
+            //Fallo
             val account = completedTask.getResult(ApiException::class.java)
+            if (account != null) {
+                Log.d(this.localClassName, "dinamita" + account.email)
+            } else {
+                Log.d(this.localClassName, "dinamita failure")
+            }
             if(account != null) {
                 val credential = GoogleAuthProvider.getCredential(account.idToken, null)
                 FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener {
+                    // Fallo
                     // Signed in successfully, show authenticated UI.
                     if(it.isSuccessful) {
                         Log.d(this.localClassName, "signInWithCredential:success")
