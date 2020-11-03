@@ -21,4 +21,9 @@
         app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@android:drawable/ic_dialog_dialer" />
 
+    <include
+        layout="@layout/activity_save_button"
+        app:layout_anchor="@+id/postViewPager"
+        app:layout_anchorGravity="center" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
