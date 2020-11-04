@@ -2,10 +2,17 @@ package com.utng.discoverw
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.activity_save_button.*
 
 class HomeActivity : AppCompatActivity() {
 
@@ -13,6 +20,7 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         account()
+        actionbutton()
         toProfile()
         posts()
     }
@@ -45,7 +53,32 @@ class HomeActivity : AppCompatActivity() {
         prefs.putString("photoUrl", bundle?.getString("photoUrl"))
         prefs.apply()
     }
-
+    private fun actionbutton() {
+        fab1.setOnClickListener {
+            var iModo = true
+            fab1.setOnClickListener {
+                var sMsg: String
+                if (iModo){
+                    sMsg = "Guardado con exito"
+                    val bt = findViewById<View>(R.id.fab1) as FloatingActionButton
+                    bt.setImageResource(R.drawable.estrella)
+                    bt.backgroundTintList = ColorStateList.valueOf(Color.BLUE)
+                } else {
+                    sMsg = "Cancelado"
+                    val bt = findViewById<View>(R.id.fab1) as FloatingActionButton
+                    bt.setImageResource(R.drawable.reloj)
+                    bt.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF52658F"))
+                }
+                iModo = !iModo
+                supportFragmentManager
+                        .beginTransaction()
+                        .commit()
+                
+                Snackbar.make(fab1, sMsg, Snackbar.LENGTH_SHORT)
+                        .setAction("Action", null).show()
+            }
+        }
+    }
     /**
      * Access to Profile screen
      */
