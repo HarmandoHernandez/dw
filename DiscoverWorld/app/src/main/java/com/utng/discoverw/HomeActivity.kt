@@ -6,13 +6,18 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.activity_home.*
+
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.view.View
+import android.widget.Toast
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_save_button.*
 
 class HomeActivity : AppCompatActivity() {
 
@@ -33,6 +38,7 @@ class HomeActivity : AppCompatActivity() {
      * Load functions
      */
     private fun setup() {
+        actionbutton()
         account()
         posts()
         fab.setOnClickListener {
@@ -129,6 +135,33 @@ class HomeActivity : AppCompatActivity() {
     private fun openAuth(){
         startActivity(Intent(this, AuthActivity::class.java))
         finish()
+    }
+
+    private fun actionbutton() {
+        fab1.setOnClickListener {
+            var iModo = true
+            fab1.setOnClickListener {
+                var sMsg: String
+                if (iModo){
+                    sMsg = "Guardado con exito"
+                    val bt = findViewById<View>(R.id.fab1) as FloatingActionButton
+                    bt.setImageResource(R.drawable.estrella)
+                    bt.backgroundTintList = ColorStateList.valueOf(Color.BLUE)
+                } else {
+                    sMsg = "Cancelado"
+                    val bt = findViewById<View>(R.id.fab1) as FloatingActionButton
+                    bt.setImageResource(R.drawable.reloj)
+                    bt.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF52658F"))
+                }
+                iModo = !iModo
+                supportFragmentManager
+                        .beginTransaction()
+                        .commit()
+
+                Snackbar.make(fab1, sMsg, Snackbar.LENGTH_SHORT)
+                        .setAction("Action", null).show()
+            }
+        }
     }
 
     /**
