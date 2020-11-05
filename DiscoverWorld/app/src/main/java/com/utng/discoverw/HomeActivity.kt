@@ -70,11 +70,6 @@ class HomeActivity : AppCompatActivity() {
         val photoUrl = bundle?.getString("photoUrl")
 
         validAccount(idX ?: "", email ?: "",displayName ?: "",photoUrl ?: "")
-        /**
-         * TODO : consultar si ya se tiene un perfil con dicho gmail
-         * Op 1-> crear cuenta
-         * Op 2-> actualizar datos si han cambiado
-         */
 
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
         prefs.putString("email", email)
@@ -94,7 +89,7 @@ class HomeActivity : AppCompatActivity() {
                     if (document != null) {
                         if(document.data?.get("email") == email) {
                             exist = true
-                            updateAccount(name, document.data?.get("displayName").toString(), photo, document.data?.get("photoUrl").toString())
+                            updateAccount(idX, name, document.data?.get("displayName").toString(), photo, document.data?.get("photoUrl").toString())
                         }
                     } else {
                         Log.d(this.localClassName, "No such document")
@@ -109,9 +104,19 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateAccount(nameNew: String, nameOld: String, photoNew: String, photoOld: String) {
-        if (nameNew !== nameOld || photoNew !== photoOld) {
-            println("Mandar a actualizar")
+    private fun updateAccount(idX: String, nameNew: String, nameOld: String, photoNew: String, photoOld: String) {
+        val docRef = ddBb.collection("users").document(idX)
+        if (nameNew != nameOld) {
+            docRef
+                    .update("displayName", photoNew)
+                    .addOnSuccessListener { Log.d("TAGX", "DocumentSnapshot successfully updated!") }
+                    .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
+        }
+        if (photoNew != photoOld) {
+            docRef
+                    .update("photoUrl", photoNew)
+                    .addOnSuccessListener { Log.d("TAGX", "DocumentSnapshot successfully updated!") }
+                    .addOnFailureListener { e -> Log.w("TAGX", "Error updating document", e) }
         }
     }
 
@@ -123,7 +128,6 @@ class HomeActivity : AppCompatActivity() {
 
         ddBb.collection("users").document(idX).set(map)
                 .addOnSuccessListener {
-                    //documentReference ->
                     println( "DocumentSnapshot added")
                 }
                 .addOnFailureListener { e ->
@@ -143,7 +147,7 @@ class HomeActivity : AppCompatActivity() {
         fab1.setOnClickListener {
             var iModo = true
             fab1.setOnClickListener {
-                var sMsg: String
+                val sMsg: String
                 if (iModo){
                     sMsg = "Guardado con exito"
                     val bt = findViewById<View>(R.id.fab1) as FloatingActionButton
