@@ -14,7 +14,6 @@ import kotlinx.android.synthetic.main.activity_home.*
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.View
-import android.widget.Toast
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_save_button.*
@@ -64,17 +63,13 @@ class HomeActivity : AppCompatActivity() {
      */
     private fun account() {
         val aAuth = FirebaseAuth.getInstance()
-        val id = aAuth.currentUser?.uid
+        val idX = aAuth.currentUser?.uid
         val bundle = intent.extras
         val email = bundle?.getString("email")
         val displayName = bundle?.getString("displayName")
         val photoUrl = bundle?.getString("photoUrl")
 
-        if (existAccount(id ?: "")) {
-            println("Read account")
-        } else {
-            registerAccount(id ?: "",email ?: "",displayName ?: "",photoUrl ?: "")
-        }
+        validAccount(idX ?: "", email ?: "",displayName ?: "",photoUrl ?: "")
         /**
          * TODO : consultar si ya se tiene un perfil con dicho gmail
          * Op 1-> crear cuenta
@@ -88,16 +83,18 @@ class HomeActivity : AppCompatActivity() {
         prefs.apply()
     }
 
-    private fun existAccount(id: String): Boolean {
+    /**
+     * Valid if exist an account and decide if need create or update account
+     */
+    private fun validAccount(idX: String, email: String, name: String, photo: String) {
         var exist = false
-        val docRef = ddBb.collection("Accounts").document(id)
+        val docRef = ddBb.collection("users").document(idX)
         docRef.get()
                 .addOnSuccessListener { document ->
                     if (document != null) {
-                        Log.d(this.localClassName, "DocumentSnapshot data: ${document.data}")
-                        println("XX${document.toString()}")
-                        if(document.data == null) {
+                        if(document.data?.get("email") == email) {
                             exist = true
+                            updateAccount(name, document.data?.get("displayName").toString(), photo, document.data?.get("photoUrl").toString())
                         }
                     } else {
                         Log.d(this.localClassName, "No such document")
@@ -106,11 +103,16 @@ class HomeActivity : AppCompatActivity() {
                 .addOnFailureListener { exception ->
                     Log.d(this.localClassName, "get failed with ", exception)
                 }
-        return exist
+
+        if (!exist) {
+            registerAccount(idX ?: "",email ?: "",name ?: "",photo ?: "")
+        }
     }
 
-    private fun updateAccount() {
-
+    private fun updateAccount(nameNew: String, nameOld: String, photoNew: String, photoOld: String) {
+        if (nameNew !== nameOld || photoNew !== photoOld) {
+            println("Mandar a actualizar")
+        }
     }
 
     private fun registerAccount(idX: String, email: String, name: String, photo: String) {
