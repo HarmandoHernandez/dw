@@ -13,9 +13,9 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".PhotoActivity"></activity>
+        <activity android:name=".SavesPActivity"></activity>
+        <activity android:name=".PhotoActivity" />
         <activity android:name=".AddPActivity" />
-        <activity android:name=".SavesPActivity" />
         <activity android:name=".DetailsPActivity" />
         <activity android:name=".ProfileActivity" />
         <activity
