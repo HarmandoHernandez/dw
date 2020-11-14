@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -40,11 +41,11 @@ public class PhotoActivity extends AppCompatActivity {
 
     private ImageView foto;
     private Button subir, seleccionar;
-    private FirebaseFirestore imageRef;
+    private FirebaseFirestore imgref;
     private StorageReference storageReference;
     private ProgressDialog cargando;
 
-    Bitmap thumb = null;
+    private Bitmap thumb_bitmap = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +55,8 @@ public class PhotoActivity extends AppCompatActivity {
         foto = findViewById(R.id.photo);
         seleccionar = findViewById(R.id.btnSelectPhoto);
         subir = findViewById(R.id.btnUploadPhoto);
-        imageRef = FirebaseFirestore.getInstance();
-        storageReference = FirebaseStorage.getInstance().getReference().child("imagesUsers");
+        imgref = FirebaseFirestore.getInstance(); // TODO Fire store
+        storageReference = FirebaseStorage.getInstance().getReference();//.child("imagesUsers");
         cargando = new ProgressDialog(this);
 
         seleccionar.setOnClickListener(new View.OnClickListener() {
@@ -75,36 +76,39 @@ public class PhotoActivity extends AppCompatActivity {
             Uri imageuri = CropImage.getPickImageResultUri(this, data);
             // Recortar imagen
             CropImage.activity(imageuri).setGuidelines(CropImageView.Guidelines.ON)
-                    .setRequestedSize(640, 480)
+                    .setRequestedSize(654, 420)
                     .setAspectRatio(2, 1).start(PhotoActivity.this);
         }
 
         if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            Log.i("INFOTAG", "Termina de recortar ");
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-            if(requestCode == RESULT_OK) {
+            if(resultCode == RESULT_OK) {
                 Uri resultUri = result.getUri();
                 File url = new File(resultUri.getPath());
 
-
+                Log.i("INFOTAG", "Muestra imagen recortada");
                 Picasso.with(this).load(url).into(foto);
                 // Comprimir image
                 try {
-                    thumb = new Compressor(this)
-                            .setMaxWidth(640)
-                            .setMaxHeight(480)
+                    Log.i("INFOTAG", "Intenta comprimir imagen");
+                    thumb_bitmap = new Compressor(this)
+                            .setMaxWidth(654)
+                            .setMaxHeight(420)
                             .setQuality(90)
                             .compressToBitmap(url);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    Log.i("ERRORTAG", "Error al comprimir imagen");
                 }
 
-                ByteArrayOutputStream byteArrayOutStrem = new ByteArrayOutputStream();
-                thumb.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutStrem);
-                final byte [] thumb_byte = byteArrayOutStrem.toByteArray();
+                ByteArrayOutputStream byteArrayOutputStrem = new ByteArrayOutputStream();
+                thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStrem);
+                final byte [] thumb_byte = byteArrayOutputStrem.toByteArray();
+                Log.i("INFOTAG", "Termina de comprimir imagen");
 
-                // Final del compressor
-                final String nombre = "post.jpg";
+                final String nombre = "post/post.jpg";
 
                 subir.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -112,28 +116,64 @@ public class PhotoActivity extends AppCompatActivity {
                         cargando.setTitle("Subiendo foto...");
                         cargando.setMessage("Espere por favor..");
                         cargando.show();
+                        Log.i("INFOTAG", "Intenta subir imagen comprimida");
+                        // TODO hasta aquí deberia de funcionar
 
-                        StorageReference ref = storageReference.child("post.jpg");
-                        UploadTask uploadTask = ref.putBytes(thumb_byte);
 
-                        // Subir imagen a Storage
-                        Task<Uri> uriTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                            @Override
-                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                                if(!task.isSuccessful()) {
-                                    throw Objects.requireNonNull(task.getException());
-                                }
-                                return ref.getDownloadUrl();
-                            }
-                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Uri> task) {
-                                Uri dowloadUri = task.getResult();
-                                // imageRef.push().child("urifoto").setValue(dowloadUri.toString()); TODO : Guardar en FireStore
-                                cargando.dismiss();
-                                Toast.makeText(PhotoActivity.this, "Imagen cargada con exito", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+
+                        try {
+                            Thread.sleep(2*1000);
+                            cargando.dismiss();
+                            Toast.makeText(PhotoActivity.this, "Imagen cargada con exito", Toast.LENGTH_SHORT).show();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        // StorageReference ref = storageReference.child(nombre.toString());
+                        // UploadTask uploadTask = ref.putBytes(thumb_byte);
+//                      -------------------------------
+
+                        //Uri file = Uri.fromFile(new File("path/to/images/rivers.jpg"));
+                        //StorageReference riversRef = storageReference.child("post/rivers.jpg");
+
+                        //riversRef.putFile(file)
+                        //        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        //            @Override
+                        //            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        //                // Get a URL to the uploaded content
+                        //                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        //            }
+                        //        })
+                        //        .addOnFailureListener(new OnFailureListener() {
+                        //            @Override
+                        //            public void onFailure(@NonNull Exception exception) {
+                        //                // Handle unsuccessful uploads
+                        //                // ...
+                        //            }
+                        //        });
+
+                        //// Subir imagen a Storage
+                        //Task<Uri> uriTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                        //    @Override
+                        //    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        //        if(!task.isSuccessful()) {
+                        //            Log.i("ERRORTAG", "Error al subir a storage");
+//
+                        //            throw Objects.requireNonNull(task.getException());
+                        //        }
+                        //        return ref.getDownloadUrl();
+                        //    }
+                        //}).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        //    @Override
+                        //    public void onComplete(@NonNull Task<Uri> task) {
+                        //        Log.i("INFOTAG", "Cargo imagen a Storage");
+//
+                        //        Uri dowloadUri = task.getResult();
+                        //        // imageRef.push().child("urifoto").setValue(dowloadUri.toString()); TODO : Guardar en FireStore
+                        //        cargando.dismiss();
+                        //        Toast.makeText(PhotoActivity.this, "Imagen cargada con exito", Toast.LENGTH_SHORT).show();
+                        //    }
+                        //});
                     }
                 });
             }
