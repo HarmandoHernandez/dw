@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/fragment_profile"
+        android:title="Perfil"
+        android:icon="@drawable/ic_person" />
+
+    <item android:id="@+id/placeholder"
+        android:title="" />
+
+    <item android:id="@+id/savesPFragment3"
+        android:title="Publicaciones"
+        android:icon="@drawable/ic_save" />
+
+</menu>

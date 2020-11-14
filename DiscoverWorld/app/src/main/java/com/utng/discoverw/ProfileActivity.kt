@@ -5,6 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.navigation.findNavController
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_profile.*
 
@@ -14,6 +17,13 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
         // TODO : Youtube "Modern Dashboard UI Design Android Studio Tutorial"
+
+        val bottomNavigationViw = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        val navController = findNavController(R.id.fragment)
+
+        bottomNavigationViw.setupWithNavController(navController)
+
+
 
         /** Initial data */
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE)
@@ -34,15 +44,15 @@ class ProfileActivity : AppCompatActivity() {
         profile_name.text = name
         imageView3.setImageURI(Uri.parse( photo )) //profile_image
 
-        btnLogOut.setOnClickListener {
-            closeSession()
-        }
-        btnAddPost.setOnClickListener {
-            startActivity(Intent(this, AddPActivity::class.java))
-        }
-        btnSavePost.setOnClickListener {
-            startActivity(Intent(this, SavesPActivity::class.java))
-        }
+//        btnLogOut.setOnClickListener {
+//            closeSession()
+//        }
+//        btnAddPost.setOnClickListener {
+//            startActivity(Intent(this, AddPActivity::class.java))
+//        }
+//        btnSavePost.setOnClickListener {
+//            startActivity(Intent(this, SavesPActivity::class.java))
+//        }
     }
 
     /**

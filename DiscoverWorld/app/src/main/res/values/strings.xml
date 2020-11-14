@@ -6,4 +6,7 @@
     <string name="app_login">Inicia con Google</string>
     <string name="app_createBy">Create by Team @DINAMITA</string>
     <string name="app_alert">Se ha producido un error autenticando al usuario</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
