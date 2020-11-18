@@ -6,16 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".AuthActivity">
 
-    <ProgressBar
-        android:id="@+id/indeterminateBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/textView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="invisible"/>
-
     <ImageView
         android:id="@+id/imageView"
         android:contentDescription="@string/app_name"
@@ -28,13 +18,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.267"/>
 
+    <!--com.google.android.gms.common.SignInButton
+        android:id="@+id/btnLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/-->
+
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="250dp"
         android:layout_height="55dp"
         android:background="@drawable/btn_login"
         android:text="@string/app_login"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorWithe"
 
         android:drawableLeft="@mipmap/ic_google"
         android:drawableStart="@mipmap/ic_google"
@@ -42,7 +37,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <TextView
         android:id="@+id/textView"

@@ -1,5 +1,6 @@
 package com.utng.discoverw
 
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -18,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_auth.*
 /**
  * Firebase Authentication using a Google ID Token.
  */
+@Suppress("DEPRECATION")
 class AuthActivity : AppCompatActivity() {
 
     private val GOOGLE_SIGN_IN = 9001
@@ -71,24 +73,32 @@ class AuthActivity : AppCompatActivity() {
      * Valid if account was successful
      */
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
-        indeterminateBar.visibility = View.VISIBLE
+        val loading = ProgressDialog(this@AuthActivity)
+        loading.setTitle("Acceso con Gmail")
+        loading.setMessage("Cargando, por favor espere...")
+        loading.show()
+
         try {
             val account = completedTask.getResult(ApiException::class.java)
             if(account != null) {
                 val credential = GoogleAuthProvider.getCredential(account.idToken, null)
                 FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener {
                     if(it.isSuccessful) {
+                        loading.dismiss()
                         showHome(account.email ?: "", account.displayName ?: "", account.photoUrl.toString() ?: "")
                     } else {
+                        loading.dismiss()
                         showAlert()
                     }
                 }
             } else {
+                loading.dismiss()
                 showAlert()
             }
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            loading.dismiss()
             showAlert()
         }
     }
@@ -97,7 +107,6 @@ class AuthActivity : AppCompatActivity() {
      * Access to Home screen
      */
     private fun showHome(email: String, displayName: String, photoUrl: String){
-        indeterminateBar.visibility = View.INVISIBLE
         val homeIntent = Intent(this, HomeActivity::class.java).apply {
             putExtra("email", email)
             putExtra("displayName", displayName)
@@ -111,7 +120,6 @@ class AuthActivity : AppCompatActivity() {
      * Alert of error
      */
     private fun showAlert() {
-        indeterminateBar.visibility = View.INVISIBLE
         Toast.makeText(applicationContext, getString(R.string.app_alert), Toast.LENGTH_LONG).show()
     }
 
@@ -128,5 +136,4 @@ class AuthActivity : AppCompatActivity() {
             showHome(email, displayName, photoUrl ?: "")
         }
     }
-    // TODO : Loading screen (Al seleccionar cuenta de Gmail)
 }

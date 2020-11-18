@@ -2,18 +2,19 @@ package com.utng.discoverw
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.firebase.auth.FirebaseAuth
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_post_saves.*
 import kotlinx.android.synthetic.main.activity_profile.*
+import java.util.ArrayList
 
 class ProfileActivity : AppCompatActivity() {
     //onBackPressed() Retornar a la pantalla anterior
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
-        // TODO : Youtube "Modern Dashboard UI Design Android Studio Tutorial"
 
         /** Initial data */
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE)
@@ -31,17 +32,33 @@ class ProfileActivity : AppCompatActivity() {
      * Load functions
      */
     private fun setup(name: String, photo: String) {
+        // menu()
         profile_name.text = name
-        imageView3.setImageURI(Uri.parse( photo )) //profile_image
+        Picasso.with(this)
+                .load(photo)
+                .into(profile_image)
 
-        btnLogOut.setOnClickListener {
-            closeSession()
-        }
         btnAddPost.setOnClickListener {
             startActivity(Intent(this, PhotoActivity::class.java))
         }
-        btnSavePost.setOnClickListener {
-            startActivity(Intent(this, PostSavesActivity::class.java))
+
+        bottomAppBar.setOnMenuItemClickListener {
+            println(it.itemId)
+            when (it.itemId) {
+                R.id.home -> {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    true
+                }
+                R.id.postSaves -> {
+                    startActivity(Intent(this, PostSavesActivity::class.java))
+                    true
+                }
+                R.id.close -> {
+                    closeSession()
+                    true
+                }
+                else -> false
+            }
         }
     }
 
@@ -55,6 +72,32 @@ class ProfileActivity : AppCompatActivity() {
         FirebaseAuth.getInstance().signOut()
         startActivity(Intent(this, AuthActivity::class.java))
         finish()
+    }
+
+    private fun menu() {
+        val listPostSaves = ArrayList<Post>()
+        listPostSaves.add(Post("Celebration",
+                "https://digitalsevilla.com/wp-content/uploads/2019/03/celebraci%C3%B3n-de-eventos.jpg",
+                "Celebrate who you are in your deepest heart. Love your self and the world will love you."))
+        listPostSaves.add(Post("Party",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQK4WEZ21bnJ1v60mpxn47IBJRtTmG0lQ4edQ&usqp=CAU",
+                "You gotta have life your way."))
+        listPostSaves.add(Post("Exercise",
+                "https://static01.nyt.com/images/2020/03/10/well/physed-immune1/physed-immune1-mobileMasterAt3x.jpg",
+                "Whenever I feel the need to exercise, I like down until it goes away."))
+        listPostSaves.add(Post("Nature",
+                "https://assets.unenvironment.org/styles/article_billboard_image/s3/2020-05/nature-3294681_1920%20%281%29.jpg?null&amp;h=ebad6883&amp;itok=iV1MUd_a",
+                "In every walk in with nature on receives for more tha he seeks."))
+
+        val adapter = PostSavesAdapter(this, listPostSaves)
+        list.adapter = adapter // LiatView
+
+        list.setOnItemClickListener { parent, view, position, id ->
+            val intent = Intent(this, DetailsPostActivity::class.java)
+            intent.putExtra("post", listPostSaves[position])
+            startActivity(intent)
+        }
+
     }
 
     /**
