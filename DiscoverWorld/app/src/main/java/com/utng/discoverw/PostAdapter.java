@@ -42,16 +42,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     static  class PostViewHolder extends RecyclerView.ViewHolder {
-        VideoView postView;
-        TextView textPostTitle, textPostDescription;
-        ProgressBar postProgessBar;
+        private VideoView postView;
+        private TextView textPostTitle, textPostDescription;
+        public ProgressBar postProgressBar;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             postView = itemView.findViewById(R.id.postView);
             textPostTitle = itemView.findViewById(R.id.textPostTitle);
             textPostDescription = itemView.findViewById(R.id.textPostDescription);
-            postProgessBar = itemView.findViewById(R.id.postProgressBar);
+            postProgressBar = itemView.findViewById(R.id.postProgressBar);
         }
 
         void setPostData(PostItem postItem){
@@ -61,7 +61,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             postView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    postProgessBar.setVisibility(View.GONE);
+                    postProgressBar.setVisibility(View.GONE);
                     mp.start();
 
                     float postRatio = mp.getVideoWidth()/ (float) mp.getVideoHeight();

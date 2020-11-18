@@ -38,10 +38,10 @@ class ProfileActivity : AppCompatActivity() {
             closeSession()
         }
         btnAddPost.setOnClickListener {
-            startActivity(Intent(this, AddPActivity::class.java))
+            startActivity(Intent(this, PhotoActivity::class.java))
         }
         btnSavePost.setOnClickListener {
-            startActivity(Intent(this, SavesPActivity::class.java))
+            startActivity(Intent(this, PostSavesActivity::class.java))
         }
     }
 
