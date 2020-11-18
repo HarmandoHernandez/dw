@@ -17,7 +17,7 @@
         tools:targetApi="m">
         <activity android:name=".PostSavesActivity"></activity>
         <activity android:name=".PhotoActivity" />
-        <activity android:name=".DetailsPActivity" />
+        <activity android:name=".DetailsPostActivity" />
         <activity android:name=".ProfileActivity" />
         <activity
             android:name=".HomeActivity"

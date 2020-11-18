@@ -2,7 +2,7 @@ package com.utng.discoverw
 
 import java.io.Serializable
 
-class PostSave(
+class Post(
         val title: String,
         val image: String,
         val description: String
