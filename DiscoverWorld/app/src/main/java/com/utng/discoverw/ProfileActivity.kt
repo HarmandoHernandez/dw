@@ -46,7 +46,7 @@ class ProfileActivity : AppCompatActivity() {
             println(it.itemId)
             when (it.itemId) {
                 R.id.home -> {
-                    startActivity(Intent(this, HomeActivity::class.java))
+                    //startActivity(Intent(this, HomeActivity::class.java))
                     true
                 }
                 R.id.postSaves -> {

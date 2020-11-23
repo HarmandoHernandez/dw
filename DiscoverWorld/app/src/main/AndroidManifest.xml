@@ -15,7 +15,13 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".PostSavesActivity"></activity>
+        <activity android:name=".MapActivity"></activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_api_key" />
+
+        <activity android:name=".PostSavesActivity" />
         <activity android:name=".PhotoActivity" />
         <activity android:name=".DetailsPostActivity" />
         <activity android:name=".ProfileActivity" />

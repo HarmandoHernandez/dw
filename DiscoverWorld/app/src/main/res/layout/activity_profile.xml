@@ -86,8 +86,7 @@
         app:backgroundTint="@color/colorPrimary"
         app:fabAlignmentMode="center"
         app:hideOnScroll="true"
-        app:menu="@menu/app_bar_menu"
-        app:navigationIcon="@mipmap/ic_launcher"/>
+        app:menu="@menu/app_bar_menu"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddPost"
