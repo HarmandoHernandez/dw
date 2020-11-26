@@ -6,47 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ProfileActivity">
 
-    <!--ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:src="@drawable/btn_login"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-
-    <Button
-    android:id="@+id/btnLogOut"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Cerrar session"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btnAddPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Agregar Publicación"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLogOut"
-        app:layout_constraintVertical_bias="0.18" />
-
-    <Button
-        android:id="@+id/btnSavePost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Publicaciónes guardadas"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/-->
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">

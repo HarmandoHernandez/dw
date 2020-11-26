@@ -3,182 +3,204 @@ package com.utng.discoverw;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
-import android.app.ActionBar;
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Objects;
-
-import id.zelory.compressor.Compressor;
-
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+//import id.zelory.compressor.Compressor;
 
 public class PhotoActivity extends AppCompatActivity {
+    private ProgressDialog loading;
+    private ImageView picture;
 
-    private ImageView foto;
-    private Button subir, seleccionar;
-    private FirebaseFirestore imgref;
-    private StorageReference storageReference;
-    private ProgressDialog cargando;
+    private static final int REQUEST_PERMISSION_CAMERA = 98;
+    private static final int REQUEST_IMAGE_CAMERA = 99;
 
-    private Bitmap thumb_bitmap = null;
+    private String currentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo);
 
-        foto = findViewById(R.id.photo);
-        seleccionar = findViewById(R.id.btnSelectPhoto);
-        subir = findViewById(R.id.btnUploadPhoto);
-        imgref = FirebaseFirestore.getInstance(); // TODO Fire store
-        storageReference = FirebaseStorage.getInstance().getReference();//.child("imagesUsers");
-        cargando = new ProgressDialog(this);
+        loading = new ProgressDialog(this);
+        picture = findViewById(R.id.photo);
+        ImageButton openCamera = findViewById(R.id.btnSelectPhoto);
 
-        seleccionar.setOnClickListener(new View.OnClickListener() {
+        openCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CropImage.startPickImageActivity(PhotoActivity.this);
-                // Permite seleccionar foto
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (ActivityCompat.checkSelfPermission(PhotoActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        goToCamera();
+                    } else {
+                        // Pide permisos, segun respuesta va a onRequestPermissionsResult
+                        ActivityCompat.requestPermissions(PhotoActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION_CAMERA);
+                    }
+                } else {
+                    goToCamera();
+                }
             }
         });
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Uri imageuri = CropImage.getPickImageResultUri(this, data);
-            // Recortar imagen
-            CropImage.activity(imageuri).setGuidelines(CropImageView.Guidelines.ON)
-                    .setRequestedSize(654, 420)
-                    .setAspectRatio(2, 1).start(PhotoActivity.this);
-        }
-
-        if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            Log.i("INFOTAG", "Termina de recortar ");
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-
-            if(resultCode == RESULT_OK) {
-                Uri resultUri = result.getUri();
-                File url = new File(resultUri.getPath());
-
-                Log.i("INFOTAG", "Muestra imagen recortada");
-                Picasso.with(this).load(url).into(foto);
-                // Comprimir image
-                try {
-                    Log.i("INFOTAG", "Intenta comprimir imagen");
-                    thumb_bitmap = new Compressor(this)
-                            .setMaxWidth(654)
-                            .setMaxHeight(420)
-                            .setQuality(90)
-                            .compressToBitmap(url);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.i("ERRORTAG", "Error al comprimir imagen");
-                }
-
-                ByteArrayOutputStream byteArrayOutputStrem = new ByteArrayOutputStream();
-                thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStrem);
-                final byte [] thumb_byte = byteArrayOutputStrem.toByteArray();
-                Log.i("INFOTAG", "Termina de comprimir imagen");
-
-                final String nombre = "post/post.jpg";
-
-                subir.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        cargando.setTitle("Subiendo foto...");
-                        cargando.setMessage("Espere por favor..");
-                        cargando.show();
-                        Log.i("INFOTAG", "Intenta subir imagen comprimida");
-                        // TODO hasta aquí deberia de funcionar
-
-
-
-                        try {
-                            Thread.sleep(2*1000);
-                            cargando.dismiss();
-                            Toast.makeText(PhotoActivity.this, "Imagen cargada con exito", Toast.LENGTH_SHORT).show();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-                        // StorageReference ref = storageReference.child(nombre.toString());
-                        // UploadTask uploadTask = ref.putBytes(thumb_byte);
-//                      -------------------------------
-
-                        //Uri file = Uri.fromFile(new File("path/to/images/rivers.jpg"));
-                        //StorageReference riversRef = storageReference.child("post/rivers.jpg");
-
-                        //riversRef.putFile(file)
-                        //        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        //            @Override
-                        //            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        //                // Get a URL to the uploaded content
-                        //                Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                        //            }
-                        //        })
-                        //        .addOnFailureListener(new OnFailureListener() {
-                        //            @Override
-                        //            public void onFailure(@NonNull Exception exception) {
-                        //                // Handle unsuccessful uploads
-                        //                // ...
-                        //            }
-                        //        });
-
-                        //// Subir imagen a Storage
-                        //Task<Uri> uriTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                        //    @Override
-                        //    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        //        if(!task.isSuccessful()) {
-                        //            Log.i("ERRORTAG", "Error al subir a storage");
-//
-                        //            throw Objects.requireNonNull(task.getException());
-                        //        }
-                        //        return ref.getDownloadUrl();
-                        //    }
-                        //}).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                        //    @Override
-                        //    public void onComplete(@NonNull Task<Uri> task) {
-                        //        Log.i("INFOTAG", "Cargo imagen a Storage");
-//
-                        //        Uri dowloadUri = task.getResult();
-                        //        // imageRef.push().child("urifoto").setValue(dowloadUri.toString()); TODO : Guardar en FireStore
-                        //        cargando.dismiss();
-                        //        Toast.makeText(PhotoActivity.this, "Imagen cargada con exito", Toast.LENGTH_SHORT).show();
-                        //    }
-                        //});
-                    }
-                });
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSION_CAMERA) {
+            if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                goToCamera();
+            } else {
+                // Si NO dio permisos
+                Toast.makeText(this, "Necesitas habilitar los permisos", Toast.LENGTH_SHORT).show();
             }
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 
+    private void goToCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Si no hay camara en el dispositivo
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (photoFile != null) {
+                Uri photoUri = FileProvider.getUriForFile(
+                        this,
+                        "com.utng.discoverw",
+                        photoFile
+                );
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);// La foto se agrega a currentPhotoPath
+                startActivityForResult(cameraIntent, REQUEST_IMAGE_CAMERA);
+            }
+        }
+    }
+
+    private File createFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HH-mm-ss", Locale.getDefault()).format(new Date());
+        String imgFileName = "POSTS" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);// Se almacena en la APP
+        File image = File.createTempFile(
+                imgFileName,
+                ".jpg",
+                storageDir
+        );
+
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    // TODO https://www.youtube.com/watch?v=MBit3XgnrFY
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        //Resibe foto
+        if (requestCode == REQUEST_IMAGE_CAMERA) {
+            if (resultCode == Activity.RESULT_OK) {
+                // Extrae foto tomada
+                picture.setImageURI(Uri.parse(currentPhotoPath));
+                Log.i("TAG", currentPhotoPath);
+                uploadPhoto();
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void uploadPhoto() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference().child("posts");
+
+        Button uploadPhoto = findViewById(R.id.btnUploadPhoto);
+        uploadPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loading.setTitle("Publicando...");
+                loading.setMessage("Espere por favor..");
+                loading.show();
+                /**
+                 // Comprimir image
+                 try {
+                 Log.i("INFOTAG", "Intenta comprimir imagen");
+                 thumb_bitmap = new Compressor(this)
+                 .setMaxWidth(654)
+                 .setMaxHeight(420)
+                 .setQuality(90)
+                 .compressToBitmap(url);
+                 } catch (IOException e) {
+                 e.printStackTrace();
+                 Log.i("ERRORTAG", "Error al comprimir imagen");
+                 }
+
+                 ByteArrayOutputStream byteArrayOutputStrem = new ByteArrayOutputStream();
+                 thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStrem);
+                 final byte [] thumb_byte = byteArrayOutputStrem.toByteArray();
+                 Log.i("INFOTAG", "Termina de comprimir imagen");
+                 **/
+
+                InputStream stream = null;
+                try {
+                    stream = new FileInputStream(new File(currentPhotoPath));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                assert stream != null;
+                UploadTask uploadTask = storageRef.putStream(stream);
+
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        loading.dismiss();
+                        Toast.makeText(PhotoActivity.this, "No se pudo realizar la publicacion", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.i("TAG", "taskSnapshot.getMetadata()" + taskSnapshot.getMetadata());
+                        loading.dismiss();
+                        // imageRef.push().child("urifoto").setValue(task.getResult().toString()); TODO : Guardar en FireStore
+                        Toast.makeText(PhotoActivity.this, "Publicacion Exitosa", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
+            }
+        });
     }
 
 }
