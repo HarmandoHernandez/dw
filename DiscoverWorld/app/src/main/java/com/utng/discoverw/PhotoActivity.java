@@ -19,6 +19,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -42,7 +43,11 @@ import java.util.Locale;
 
 public class PhotoActivity extends AppCompatActivity {
     private ProgressDialog loading;
-    private ImageView picture;
+    private ImageButton btnSelectPhoto;
+    private ImageView photo;
+    private EditText editPostTitle;
+    private EditText editPostDescription;
+    private Button btnUploadPost;
 
     private static final int REQUEST_PERMISSION_CAMERA = 98;
     private static final int REQUEST_IMAGE_CAMERA = 99;
@@ -55,24 +60,37 @@ public class PhotoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_photo);
 
         loading = new ProgressDialog(this);
-        picture = findViewById(R.id.photo);
-        ImageButton openCamera = findViewById(R.id.btnSelectPhoto);
+        btnSelectPhoto = findViewById(R.id.btnSelectPhoto);
+        photo = findViewById(R.id.photo);
+        editPostTitle = findViewById(R.id.editPostTitle);
+        editPostDescription = findViewById(R.id.editPostDescription);
+        btnUploadPost = findViewById(R.id.btnUploadPost);
 
-        openCamera.setOnClickListener(new View.OnClickListener() {
+        setup();
+        validPermission();
+    }
+
+    private void setup(){
+        btnUploadPost.setEnabled(false);
+        btnSelectPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (ActivityCompat.checkSelfPermission(PhotoActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                        goToCamera();
-                    } else {
-                        // Pide permisos, segun respuesta va a onRequestPermissionsResult
-                        ActivityCompat.requestPermissions(PhotoActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION_CAMERA);
-                    }
-                } else {
-                    goToCamera();
-                }
+                validPermission();
             }
         });
+    }
+
+    private void validPermission(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(PhotoActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                goToCamera();
+            } else {
+                // Pide permisos, segun respuesta va a onRequestPermissionsResult
+                ActivityCompat.requestPermissions(PhotoActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION_CAMERA);
+            }
+        } else {
+            goToCamera();
+        }
     }
 
     @Override
@@ -132,75 +150,92 @@ public class PhotoActivity extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_CAMERA) {
             if (resultCode == Activity.RESULT_OK) {
                 // Extrae foto tomada
-                picture.setImageURI(Uri.parse(currentPhotoPath));
+                photo.setImageURI(Uri.parse(currentPhotoPath));
                 Log.i("TAG", currentPhotoPath);
-                uploadPhoto();
+                setupUpload();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void setupUpload() {
+        /** Oculta el btnSelectPhoto*/
+        btnUploadPost.setEnabled(true);
+        btnUploadPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (correctData()) {
+                    uploadPhoto();
+                }
+            }
+        });
     }
 
     private void uploadPhoto() {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference().child("posts");
 
-        Button uploadPhoto = findViewById(R.id.btnUploadPhoto);
-        uploadPhoto.setOnClickListener(new View.OnClickListener() {
+        loading.setTitle("Publicando...");
+        loading.setMessage("Espere por favor..");
+        loading.show();
+        /**
+         // Comprimir image
+         try {
+         Log.i("INFOTAG", "Intenta comprimir imagen");
+         thumb_bitmap = new Compressor(this)
+         .setMaxWidth(654)
+         .setMaxHeight(420)
+         .setQuality(90)
+         .compressToBitmap(url);
+         } catch (IOException e) {
+         e.printStackTrace();
+         Log.i("ERRORTAG", "Error al comprimir imagen");
+         }
+
+         ByteArrayOutputStream byteArrayOutputStrem = new ByteArrayOutputStream();
+         thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStrem);
+         final byte [] thumb_byte = byteArrayOutputStrem.toByteArray();
+         Log.i("INFOTAG", "Termina de comprimir imagen");
+         **/
+
+        InputStream stream = null;
+        try {
+            stream = new FileInputStream(new File(currentPhotoPath));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        assert stream != null;
+        UploadTask uploadTask = storageRef.putStream(stream);
+
+        uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onClick(View v) {
-                loading.setTitle("Publicando...");
-                loading.setMessage("Espere por favor..");
-                loading.show();
-                /**
-                 // Comprimir image
-                 try {
-                 Log.i("INFOTAG", "Intenta comprimir imagen");
-                 thumb_bitmap = new Compressor(this)
-                 .setMaxWidth(654)
-                 .setMaxHeight(420)
-                 .setQuality(90)
-                 .compressToBitmap(url);
-                 } catch (IOException e) {
-                 e.printStackTrace();
-                 Log.i("ERRORTAG", "Error al comprimir imagen");
-                 }
-
-                 ByteArrayOutputStream byteArrayOutputStrem = new ByteArrayOutputStream();
-                 thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStrem);
-                 final byte [] thumb_byte = byteArrayOutputStrem.toByteArray();
-                 Log.i("INFOTAG", "Termina de comprimir imagen");
-                 **/
-
-                InputStream stream = null;
-                try {
-                    stream = new FileInputStream(new File(currentPhotoPath));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                assert stream != null;
-                UploadTask uploadTask = storageRef.putStream(stream);
-
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
-                        loading.dismiss();
-                        Toast.makeText(PhotoActivity.this, "No se pudo realizar la publicacion", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.i("TAG", "taskSnapshot.getMetadata()" + taskSnapshot.getMetadata());
-                        loading.dismiss();
-                        // imageRef.push().child("urifoto").setValue(task.getResult().toString()); TODO : Guardar en FireStore
-                        Toast.makeText(PhotoActivity.this, "Publicacion Exitosa", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                loading.dismiss();
+                Toast.makeText(PhotoActivity.this, "No se pudo realizar la publicacion", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.i("TAG", "taskSnapshot.getMetadata()" + taskSnapshot.getMetadata());
+                loading.dismiss();
+                // imageRef.push().child("urifoto").setValue(task.getResult().toString()); TODO : Guardar en FireStore
+                Toast.makeText(PhotoActivity.this, "Publicacion Exitosa", Toast.LENGTH_SHORT).show();
             }
         });
+
+
+    }
+
+    private boolean correctData() {
+        if (editPostTitle.getText().length() > 1 && editPostDescription.getText().length() > 1) {
+            Toast.makeText(PhotoActivity.this, "Datos llenados", Toast.LENGTH_SHORT).show();
+            return true;
+        } else {
+            Toast.makeText(PhotoActivity.this, "Datos NO llenados", Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 
 }

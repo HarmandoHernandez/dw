@@ -19,7 +19,7 @@
                 android:id="@+id/btnSelectPhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
+                android:layout_margin="30dp"
                 android:padding="5dp"
                 android:src="@drawable/ic_camera"
                 android:background="@drawable/btn_login"
@@ -29,41 +29,32 @@
                 android:id="@+id/photo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
                 android:layout_gravity="center"/>
 
-            <TextView
-                android:id="@+id/textPostTitle"
+            <EditText
+                android:id="@+id/editPostTitle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="5dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="5dp"
-                android:shadowColor="@android:color/black"
-                android:shadowDx="0"
-                android:shadowDy="0"
-                android:shadowRadius="15"
-                android:textColor="@android:color/white"
+                android:layout_height="match_parent"
+                android:inputType="textAutoCorrect|textShortMessage"
+                android:hint=" Agrega un titulo"
                 android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
 
-            <TextView
-                android:id="@+id/textPostDescription"
+            <EditText
+                android:id="@+id/editPostDescription"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="5dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="5dp"
-                android:shadowColor="@android:color/black"
-                android:shadowDx="0"
-                android:shadowDy="0"
-                android:shadowRadius="15"
-                android:textColor="@android:color/white"
+                android:layout_height="match_parent"
+                android:inputType="textMultiLine|textAutoCorrect"
+                android:hint=" Agrega una descripción"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
 
             <Button
-                android:id="@+id/btnUploadPhoto"
+                android:id="@+id/btnUploadPost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
