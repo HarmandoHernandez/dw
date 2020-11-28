@@ -1,15 +1,15 @@
 package com.utng.discoverw;
 
-import android.media.MediaPlayer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -42,47 +42,23 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     static  class PostViewHolder extends RecyclerView.ViewHolder {
-        private VideoView postView;
+        private ImageView postView;
         private TextView textPostTitle, textPostDescription;
-        public ProgressBar postProgressBar;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             postView = itemView.findViewById(R.id.postView);
             textPostTitle = itemView.findViewById(R.id.textPostTitle);
             textPostDescription = itemView.findViewById(R.id.textPostDescription);
-            postProgressBar = itemView.findViewById(R.id.postProgressBar);
         }
 
         void setPostData(PostItem postItem){
             textPostTitle.setText(postItem.postTitle);
             textPostDescription.setText(postItem.postDescription);
-            postView.setVideoPath(postItem.postURL);
-            postView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    postProgressBar.setVisibility(View.GONE);
-                    mp.start();
-
-                    float postRatio = mp.getVideoWidth()/ (float) mp.getVideoHeight();
-                    float screenRatio = postView.getWidth()/ (float) postView.getHeight();
-                    float scale = postRatio / screenRatio;
-
-                    if (scale >= 1f) {
-                        postView.setScaleX(scale);
-                    } else {
-                        postView.setScaleY(1f/scale);
-                    }
-                }
-            });
-
-            //
-            postView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    mp.start();
-                }
-            });
+            Picasso.with(itemView.getContext())
+                    .load(postItem.postURL)
+                    .error(R.drawable.ic_error)
+                    .into(postView);
         }
     }
 }
