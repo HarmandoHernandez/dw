@@ -1,14 +1,17 @@
 package com.utng.discoverw
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_post_saves.*
 import kotlinx.android.synthetic.main.activity_profile.*
-import java.util.ArrayList
+import java.util.*
+
 
 class ProfileActivity : AppCompatActivity() {
     //onBackPressed() Retornar a la pantalla anterior
@@ -21,7 +24,7 @@ class ProfileActivity : AppCompatActivity() {
         val email = prefs.getString("email", "")
         val name = prefs.getString("displayName", "")
         val photo = prefs.getString("photoUrl", "")
-        if ( email == "") {
+        if (email == "") {
             openAuth()
         } else {
             setup(name ?: "", photo ?: "")
@@ -65,13 +68,21 @@ class ProfileActivity : AppCompatActivity() {
     /**
      * Close session
      */
-    private fun closeSession(){
-        val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
-        prefs.clear()
-        prefs.apply()
-        FirebaseAuth.getInstance().signOut()
-        startActivity(Intent(this, AuthActivity::class.java))
-        finish()
+    private fun closeSession() {
+        val confirm = AlertDialog.Builder(this)
+        confirm.setTitle("Session")
+        confirm.setMessage("¿Seguro que quieres cerrar session?")
+        confirm.setCancelable(false)
+        confirm.setPositiveButton("Aceptar", DialogInterface.OnClickListener { dialogo1, id ->
+            val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
+            prefs.clear()
+            prefs.apply()
+            FirebaseAuth.getInstance().signOut()
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
+        })
+        confirm.setNegativeButton("Cancelar", DialogInterface.OnClickListener { dialogo1, id -> /* Do something */ })
+        confirm.show()
     }
 
     private fun menu() {
@@ -103,7 +114,7 @@ class ProfileActivity : AppCompatActivity() {
     /**
      * Throw screen Auth if there isn't email
      */
-    private fun openAuth(){
+    private fun openAuth() {
         startActivity(Intent(this, AuthActivity::class.java))
         finish()
     }

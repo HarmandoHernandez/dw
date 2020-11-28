@@ -53,7 +53,7 @@ class HomeActivity : AppCompatActivity() {
         super.onStart()
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE)
         val email = prefs.getString("email", "")
-        if ( email == "") {
+        if (email == "") {
             openAuth()
         }
     }
@@ -69,7 +69,7 @@ class HomeActivity : AppCompatActivity() {
         val displayName = bundle?.getString("displayName")
         val photoUrl = bundle?.getString("photoUrl")
 
-        validAccount(idX ?: "", email ?: "",displayName ?: "",photoUrl ?: "")
+        validAccount(idX ?: "", email ?: "", displayName ?: "", photoUrl ?: "")
 
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
         prefs.putString("email", email)
@@ -87,7 +87,7 @@ class HomeActivity : AppCompatActivity() {
         docRef.get()
                 .addOnSuccessListener { document ->
                     if (document != null) {
-                        if(document.data?.get("email") == email) {
+                        if (document.data?.get("email") == email) {
                             exist = true
                             updateAccount(idX, name, document.data?.get("displayName").toString(), photo, document.data?.get("photoUrl").toString())
                         }
@@ -100,7 +100,7 @@ class HomeActivity : AppCompatActivity() {
                 }
 
         if (!exist) {
-            registerAccount(idX ?: "",email ?: "",name ?: "",photo ?: "")
+            registerAccount(idX ?: "", email ?: "", name ?: "", photo ?: "")
         }
     }
 
@@ -128,7 +128,7 @@ class HomeActivity : AppCompatActivity() {
 
         ddBb.collection("users").document(idX).set(map)
                 .addOnSuccessListener {
-                    println( "DocumentSnapshot added")
+                    println("DocumentSnapshot added")
                 }
                 .addOnFailureListener { e ->
                     println("Error adding document $e")
@@ -138,7 +138,7 @@ class HomeActivity : AppCompatActivity() {
     /**
      * Throw screen Auth if there isn't email
      */
-    private fun openAuth(){
+    private fun openAuth() {
         startActivity(Intent(this, AuthActivity::class.java))
         finish()
     }
@@ -148,7 +148,7 @@ class HomeActivity : AppCompatActivity() {
             var iModo = true
             fab1.setOnClickListener {
                 val sMsg: String
-                if (iModo){
+                if (iModo) {
                     sMsg = "Guardado con exito"
                     val bt = findViewById<View>(R.id.fab1) as FloatingActionButton
                     bt.setImageResource(R.drawable.estrella)

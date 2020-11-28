@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/colorWithe"/>
+    <item android:drawable="@color/colorWithe" />
     <item>
-        <bitmap android:src="@drawable/discover_world_icon_iii"
-            android:gravity="center"/>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/discover_world_icon_iii" />
     </item>
 </layer-list>

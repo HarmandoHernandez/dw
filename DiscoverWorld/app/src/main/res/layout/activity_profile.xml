@@ -19,20 +19,20 @@
                 android:id="@+id/profile_image"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="50dp"
                 app:civ_border_color="@color/colorPrimary"
-                app:civ_border_width="2dp"
-                android:layout_gravity="center_horizontal"/>
+                app:civ_border_width="2dp" />
 
             <TextView
                 android:id="@+id/profile_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
                 android:text="User"
                 android:textSize="22dp"
-                android:textStyle="bold"
-                android:layout_gravity="center_horizontal"/>
+                android:textStyle="bold" />
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
@@ -45,17 +45,17 @@
         app:backgroundTint="@color/colorPrimary"
         app:fabAlignmentMode="center"
         app:hideOnScroll="true"
-        app:menu="@menu/app_bar_menu"/>
+        app:menu="@menu/app_bar_menu" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddPost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_add"
         android:backgroundTint="@color/colorAccent"
+        android:src="@drawable/ic_add"
         app:layout_anchor="@id/bottomAppBar"
         app:maxImageSize="35dp"
-        app:tint="@color/cardview_light_background"/>
+        app:tint="@color/cardview_light_background" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

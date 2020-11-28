@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_post_save.view.*
 
-class PostSavesAdapter (
+class PostSavesAdapter(
         private val mContext: Context,
         private val listTopics: List<Post>
 ) : ArrayAdapter<Post>(mContext, 0, listTopics) {

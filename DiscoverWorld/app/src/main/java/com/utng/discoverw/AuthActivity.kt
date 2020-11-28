@@ -46,7 +46,7 @@ class AuthActivity : AppCompatActivity() {
     /**
      * Get accounts from phone
      */
-    private fun getAccount(){
+    private fun getAccount() {
         // Configure sign-in to request the user's ID, email address, and basic profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         val googleConf = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -80,12 +80,13 @@ class AuthActivity : AppCompatActivity() {
 
         try {
             val account = completedTask.getResult(ApiException::class.java)
-            if(account != null) {
+            if (account != null) {
                 val credential = GoogleAuthProvider.getCredential(account.idToken, null)
                 FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener {
-                    if(it.isSuccessful) {
+                    if (it.isSuccessful) {
                         loading.dismiss()
-                        showHome(account.email ?: "", account.displayName ?: "", account.photoUrl.toString() ?: "")
+                        showHome(account.email ?: "", account.displayName
+                                ?: "", account.photoUrl.toString() ?: "")
                     } else {
                         loading.dismiss()
                         showAlert()
@@ -106,7 +107,7 @@ class AuthActivity : AppCompatActivity() {
     /**
      * Access to Home screen
      */
-    private fun showHome(email: String, displayName: String, photoUrl: String){
+    private fun showHome(email: String, displayName: String, photoUrl: String) {
         val homeIntent = Intent(this, HomeActivity::class.java).apply {
             putExtra("email", email)
             putExtra("displayName", displayName)
@@ -126,13 +127,13 @@ class AuthActivity : AppCompatActivity() {
     /**
      * Valid if exist a session opening
      */
-    private fun session(){
+    private fun session() {
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE)
         val email = prefs.getString("email", null)
         val displayName = prefs.getString("displayName", null)
         val photoUrl = prefs.getString("photoUrl", "")
 
-        if(email != null && displayName != null){
+        if (email != null && displayName != null) {
             showHome(email, displayName, photoUrl ?: "")
         }
     }

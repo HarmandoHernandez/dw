@@ -70,7 +70,7 @@ public class PhotoActivity extends AppCompatActivity {
         validPermission();
     }
 
-    private void setup(){
+    private void setup() {
         btnUploadPost.setEnabled(false);
         btnSelectPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +80,7 @@ public class PhotoActivity extends AppCompatActivity {
         });
     }
 
-    private void validPermission(){
+    private void validPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ActivityCompat.checkSelfPermission(PhotoActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 goToCamera();

@@ -41,7 +41,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         return postItems.size();
     }
 
-    static  class PostViewHolder extends RecyclerView.ViewHolder {
+    static class PostViewHolder extends RecyclerView.ViewHolder {
         private ImageView postView;
         private TextView textPostTitle, textPostDescription;
 
@@ -52,7 +52,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             textPostDescription = itemView.findViewById(R.id.textPostDescription);
         }
 
-        void setPostData(PostItem postItem){
+        void setPostData(PostItem postItem) {
             textPostTitle.setText(postItem.postTitle);
             textPostDescription.setText(postItem.postDescription);
             Picasso.with(itemView.getContext())

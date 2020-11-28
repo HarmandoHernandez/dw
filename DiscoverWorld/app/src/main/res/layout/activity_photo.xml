@@ -19,48 +19,48 @@
                 android:id="@+id/btnSelectPhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_margin="30dp"
-                android:padding="5dp"
-                android:src="@drawable/ic_camera"
                 android:background="@drawable/btn_login"
-                android:layout_gravity="center"/>
+                android:padding="5dp"
+                android:src="@drawable/ic_camera" />
 
             <ImageView
                 android:id="@+id/photo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center" />
 
             <EditText
                 android:id="@+id/editPostTitle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:inputType="textAutoCorrect|textShortMessage"
-                android:hint=" Agrega un titulo"
-                android:textSize="25sp"
-                android:textStyle="bold"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:layout_marginRight="10dp"
+                android:hint=" Agrega un titulo"
+                android:inputType="textAutoCorrect|textShortMessage"
+                android:textSize="25sp"
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/editPostDescription"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:inputType="textMultiLine|textAutoCorrect"
-                android:hint=" Agrega una descripción"
-                android:textSize="16sp"
-                android:textStyle="bold"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:layout_marginRight="10dp"
+                android:hint=" Agrega una descripción"
+                android:inputType="textMultiLine|textAutoCorrect"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btnUploadPost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_margin="20dp"
                 android:padding="5dp"
-                android:text="Publicar"
-                android:layout_gravity="center"/>
+                android:text="Publicar" />
 
         </LinearLayout>
 
