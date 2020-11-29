@@ -11,13 +11,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.activity_home.*
 
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.view.View
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_save_button.*
-
 class HomeActivity : AppCompatActivity() {
 
     private val ddBb = FirebaseFirestore.getInstance()
@@ -37,7 +30,6 @@ class HomeActivity : AppCompatActivity() {
      * Load functions
      */
     private fun setup() {
-        actionbutton()
         account()
         posts()
         fab.setOnClickListener {
@@ -143,64 +135,49 @@ class HomeActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun actionbutton() {
-        fab1.setOnClickListener {
-            var iModo = true
-            fab1.setOnClickListener {
-                val sMsg: String
-                if (iModo) {
-                    sMsg = "Guardado con exito"
-                    val bt = findViewById<View>(R.id.fab1) as FloatingActionButton
-                    bt.setImageResource(R.drawable.estrella)
-                    bt.backgroundTintList = ColorStateList.valueOf(Color.BLUE)
-                } else {
-                    sMsg = "Cancelado"
-                    val bt = findViewById<View>(R.id.fab1) as FloatingActionButton
-                    bt.setImageResource(R.drawable.reloj)
-                    bt.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF52658F"))
-                }
-                iModo = !iModo
-                supportFragmentManager
-                        .beginTransaction()
-                        .commit()
-
-                Snackbar.make(fab1, sMsg, Snackbar.LENGTH_SHORT)
-                        .setAction("Action", null).show()
-            }
-        }
-    }
-
     /**
      * Example Post with hard code
      */
     private fun posts() {
         val postViewPager = findViewById<ViewPager2>(R.id.postViewPager)
-        val postItems = arrayListOf<PostItem>()
-        val postItemCelebration = PostItem()
+        val postItems = arrayListOf<Post>()
 
-        postItemCelebration.postURL = "https://i.pinimg.com/originals/5e/32/50/5e3250446fc22f7890a9ed178758efc2.jpg"
-        postItemCelebration.postTitle = "Celebration"
-        postItemCelebration.postDescription = "Celebrate who you are in your deepest heart. Love your self and the world will love you."
+        val postItemCelebration = Post(
+                "Celebration",
+                "https://i.pinimg.com/originals/5e/32/50/5e3250446fc22f7890a9ed178758efc2.jpg",
+                "Celebrate who you are in your deepest heart. Love your self and the world will love you."
+        )
         postItems.add(postItemCelebration)
 
-        val postItemParty = PostItem()
-        postItemParty.postURL = "https://lh3.googleusercontent.coms";//"https://lh3.googleusercontent.com/proxy/vqPuCYww6uOJUi9iR7_ERy1C2boSmwlT119IQX_qc8878TElaRn4wXMOdi2BXBMWDFbchykF0T220WoUr_n9fz-6xdQ0kT2m7hoZNFbFudHDkpPOdv4x2tKmX4kwE8BrbotHltuCPOdimaMOlj1tmjChSNqCpoU6w6egFVbDNA";
-        postItemParty.postTitle = "Party"
-        postItemParty.postDescription = "You gotta have life your way."
+        val postItemParty = Post(
+                "Party",
+                "https://lh3.googleusercontent.coms",
+                "You gotta have life your way."
+
+        )//"https://lh3.googleusercontent.com/proxy/vqPuCYww6uOJUi9iR7_ERy1C2boSmwlT119IQX_qc8878TElaRn4wXMOdi2BXBMWDFbchykF0T220WoUr_n9fz-6xdQ0kT2m7hoZNFbFudHDkpPOdv4x2tKmX4kwE8BrbotHltuCPOdimaMOlj1tmjChSNqCpoU6w6egFVbDNA";
         postItems.add(postItemParty)
 
-        val postItemExercise = PostItem()
-        postItemExercise.postURL = "https://bloximages.chicago2.vip.townnews.com/greenevillesun.com/content/tncms/assets/v3/editorial/1/78/178c57a5-acfe-535e-ac2e-de2db173ace0/5f43c2f6edeeb.image.jpg?resize=400%2C600"
-        postItemExercise.postTitle = "Exercise"
-        postItemExercise.postDescription = "Whenever I feel the need to exercise, I like down until it goes away."
+        val postItemExercise = Post(
+                "Exercise",
+                "https://bloximages.chicago2.vip.townnews.com/greenevillesun.com/content/tncms/assets/v3/editorial/1/78/178c57a5-acfe-535e-ac2e-de2db173ace0/5f43c2f6edeeb.image.jpg?resize=400%2C600",
+                "Whenever I feel the need to exercise, I like down until it goes away."
+        )
         postItems.add(postItemExercise)
 
-        val postItemNature = PostItem()
-        postItemNature.postURL = "https://i.pinimg.com/originals/e0/3f/0a/e03f0aa3ff39bcd17c40b488ba732067.jpg"
-        postItemNature.postTitle = "Nature"
-        postItemNature.postDescription = "In every walk in with nature on receives for more tha he seeks."
+        val postItemNature = Post(
+                "Nature",
+                "https://i.pinimg.com/originals/e0/3f/0a/e03f0aa3ff39bcd17c40b488ba732067.jpg",
+                "In every walk in with nature on receives for more tha he seeks."
+        )
         postItems.add(postItemNature)
 
         postViewPager.adapter = PostAdapter(postItems)
+
+        fab1.setOnClickListener {
+            val intent = Intent(this, DetailsPostActivity::class.java)
+            intent.putExtra("post", postItems[postViewPager.currentItem])
+            startActivity(intent)
+        }
+
     }
 }

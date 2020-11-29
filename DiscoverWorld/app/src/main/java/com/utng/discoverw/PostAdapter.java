@@ -5,19 +5,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.squareup.picasso.Picasso;
-
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
-    private List<PostItem> postItems;
+    private List<Post> postItems;
 
-    public PostAdapter(List<PostItem> postItems) {
+    public PostAdapter(List<Post> postItems) {
         this.postItems = postItems;
     }
 
@@ -52,11 +49,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             textPostDescription = itemView.findViewById(R.id.textPostDescription);
         }
 
-        void setPostData(PostItem postItem) {
-            textPostTitle.setText(postItem.postTitle);
-            textPostDescription.setText(postItem.postDescription);
+        void setPostData(Post postItem) {
+            textPostTitle.setText(postItem.getTitle());
+            textPostDescription.setText(postItem.getDescription());
             Picasso.with(itemView.getContext())
-                    .load(postItem.postURL)
+                    .load(postItem.getImage())
                     .error(R.drawable.ic_error)
                     .into(postView);
         }
