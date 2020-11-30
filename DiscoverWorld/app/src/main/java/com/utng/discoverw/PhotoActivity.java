@@ -26,7 +26,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -38,7 +41,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 //import id.zelory.compressor.Compressor;
 
 public class PhotoActivity extends AppCompatActivity {
@@ -53,11 +60,22 @@ public class PhotoActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAMERA = 99;
 
     private String currentPhotoPath;
+    private String namePost;
+
+
+    private FirebaseAuth aAuth = FirebaseAuth.getInstance();
+
+    private FirebaseFirestore ddBb = FirebaseFirestore.getInstance();
+    FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+            .setTimestampsInSnapshotsEnabled(true)
+            .build();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo);
+
+        ddBb.setFirestoreSettings(settings);
 
         loading = new ProgressDialog(this);
         btnSelectPhoto = findViewById(R.id.btnSelectPhoto);
@@ -130,19 +148,16 @@ public class PhotoActivity extends AppCompatActivity {
 
     private File createFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HH-mm-ss", Locale.getDefault()).format(new Date());
-        String imgFileName = "POSTS" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);// Se almacena en la APP
+        namePost = timeStamp + "_" + Objects.requireNonNull(aAuth.getCurrentUser()).getUid();
         File image = File.createTempFile(
-                imgFileName,
+                namePost,
                 ".jpg",
-                storageDir
+                getExternalFilesDir(Environment.DIRECTORY_PICTURES)// Se almacena en la APP
         );
 
         currentPhotoPath = image.getAbsolutePath();
         return image;
     }
-
-    // TODO https://www.youtube.com/watch?v=MBit3XgnrFY
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -159,7 +174,6 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     private void setupUpload() {
-        /** Oculta el btnSelectPhoto*/
         btnUploadPost.setEnabled(true);
         btnUploadPost.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,7 +187,7 @@ public class PhotoActivity extends AppCompatActivity {
 
     private void uploadPhoto() {
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference().child("posts");
+        StorageReference storageRef = storage.getReference().child(namePost);
 
         loading.setTitle("Publicando...");
         loading.setMessage("Espere por favor..");
@@ -225,10 +239,57 @@ public class PhotoActivity extends AppCompatActivity {
             }
         });
 
+        /** Ejecuta registerPost**/
+        registerPost();
+    }
 
+    private void registerPost() {
+        Random rand = new Random();
+        double rand_dub1 = rand.nextDouble();
+        double rand_dub2 = rand.nextDouble();
+
+        Map<String, Object> post = new HashMap<>();
+        post.put("title", editPostTitle.getText().toString());
+        post.put("description", editPostDescription.getText().toString());
+        post.put("long", 21 + rand_dub1);
+        post.put("lat", -100 + rand_dub2);
+
+        ddBb.collection("posts")
+                .document(namePost) // yyyyMMdd_HH-mm-ss_UID
+                .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.i("TAG", "Post added");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.i("TAG", "Post added ERROR");
+            }
+        });
+
+        Map<String, Object> postUser = new HashMap<>();
+        postUser.put(namePost, namePost);
+
+        /** Asigna al usuario **/
+        ddBb.collection("users")
+                .document(aAuth.getCurrentUser().getUid())
+                .collection("posts")// yyyyMMdd_HH-mm-ss_UID
+                .add(postUser).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.i("TAG", "Post added to user");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.i("TAG", "Post added to user ERROR");
+            }
+        });
     }
 
     private boolean correctData() {
+        // TODO : Validar que sea de 100 caracteres el titulo y 150 de de descripcion
         if (editPostTitle.getText().length() > 1 && editPostDescription.getText().length() > 1) {
             Toast.makeText(PhotoActivity.this, "Datos llenados", Toast.LENGTH_SHORT).show();
             return true;

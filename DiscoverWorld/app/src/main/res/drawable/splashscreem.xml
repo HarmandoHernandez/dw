@@ -4,6 +4,6 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/discover_world_icon_iii" />
+            android:src="@drawable/discover_world" />
     </item>
 </layer-list>
