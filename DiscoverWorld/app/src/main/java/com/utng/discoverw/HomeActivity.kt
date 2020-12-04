@@ -9,6 +9,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_home.*
 
 class HomeActivity : AppCompatActivity() {
@@ -17,6 +18,9 @@ class HomeActivity : AppCompatActivity() {
     private val settings = FirebaseFirestoreSettings.Builder()
             .setTimestampsInSnapshotsEnabled(true)
             .build()
+    private val storageRef = FirebaseStorage.getInstance().reference
+    private val aAuth = FirebaseAuth.getInstance()
+    private lateinit var uid: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ddBb.firestoreSettings = settings
@@ -54,14 +58,13 @@ class HomeActivity : AppCompatActivity() {
      * Save user's data
      */
     private fun account() {
-        val aAuth = FirebaseAuth.getInstance()
-        val idX = aAuth.currentUser?.uid
+        uid = aAuth.currentUser?.uid.toString()
         val bundle = intent.extras
         val email = bundle?.getString("email")
         val displayName = bundle?.getString("displayName")
         val photoUrl = bundle?.getString("photoUrl")
 
-        validAccount(idX ?: "", email ?: "", displayName ?: "", photoUrl ?: "")
+        validAccount(email ?: "", displayName ?: "", photoUrl ?: "")
 
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
         prefs.putString("email", email)
@@ -73,15 +76,15 @@ class HomeActivity : AppCompatActivity() {
     /**
      * Valid if exist an account and decide if need create or update account
      */
-    private fun validAccount(idX: String, email: String, name: String, photo: String) {
+    private fun validAccount(email: String, name: String, photo: String) {
         var exist = false
-        val docRef = ddBb.collection("users").document(idX)
+        val docRef = ddBb.collection("users").document(uid)
         docRef.get()
                 .addOnSuccessListener { document ->
                     if (document != null) {
                         if (document.data?.get("email") == email) {
                             exist = true
-                            updateAccount(idX, name, document.data?.get("displayName").toString(), photo, document.data?.get("photoUrl").toString())
+                            updateAccount(name, document.data?.get("displayName").toString(), photo, document.data?.get("photoUrl").toString())
                         }
                     } else {
                         Log.d(this.localClassName, "No such document")
@@ -92,12 +95,12 @@ class HomeActivity : AppCompatActivity() {
                 }
 
         if (!exist) {
-            registerAccount(idX ?: "", email ?: "", name ?: "", photo ?: "")
+            registerAccount(email ?: "", name ?: "", photo ?: "")
         }
     }
 
-    private fun updateAccount(idX: String, nameNew: String, nameOld: String, photoNew: String, photoOld: String) {
-        val docRef = ddBb.collection("users").document(idX)
+    private fun updateAccount(nameNew: String, nameOld: String, photoNew: String, photoOld: String) {
+        val docRef = ddBb.collection("users").document(uid)
         if (nameNew != nameOld) {
             docRef
                     .update("displayName", photoNew)
@@ -112,13 +115,13 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun registerAccount(idX: String, email: String, name: String, photo: String) {
+    private fun registerAccount(email: String, name: String, photo: String) {
         val map = mutableMapOf<String, Any>()
         map["email"] = email
         map["displayName"] = name
         map["photoUrl"] = photo
 
-        ddBb.collection("users").document(idX).set(map)
+        ddBb.collection("users").document(uid).set(map)
                 .addOnSuccessListener {
                     println("DocumentSnapshot added")
                 }
@@ -139,45 +142,51 @@ class HomeActivity : AppCompatActivity() {
      * Example Post with hard code
      */
     private fun posts() {
-        val postViewPager = findViewById<ViewPager2>(R.id.postViewPager)
-        val postItems = arrayListOf<Post>()
+        var postItems = arrayListOf<Post>()
+        val docRef = ddBb.collection("posts")
+        docRef.get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        for (post in document.documents){
+                            postItems.add(Post(
+                                    post.data?.get("title").toString(),
+                                    post.id, // Only photo's name
+                                    post.data?.get("description").toString(),
+                                    post.data?.get("lat").toString(),
+                                    post.data?.get("long").toString()))
+                        }
+                        setUrlPosts(postItems)
+                    } else {
+                        Log.d(this.localClassName, "No such Posts")
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.d(this.localClassName, "get Posts failed with ", exception)
+                }
+    }
 
-        val postItemCelebration = Post(
-                "Celebration",
-                "https://i.pinimg.com/originals/5e/32/50/5e3250446fc22f7890a9ed178758efc2.jpg",
-                "Celebrate who you are in your deepest heart. Love your self and the world will love you."
-        )
-        postItems.add(postItemCelebration)
+    private fun setUrlPosts(listPost: ArrayList<Post>) {
+        var newListPost = listPost
+        var i = 0
+        for (post in listPost){
+            storageRef.child(post.image).downloadUrl.addOnSuccessListener {
+                println(it.toString())
+                newListPost[i].image = it.toString()
+                i++
+            }.addOnCompleteListener {
+                if (i == listPost.size) {
+                    toPostAdapter(newListPost)
+                }
+            }
+        }
+    }
 
-        val postItemParty = Post(
-                "Party",
-                "https://lh3.googleusercontent.coms",
-                "You gotta have life your way."
-
-        )//"https://lh3.googleusercontent.com/proxy/vqPuCYww6uOJUi9iR7_ERy1C2boSmwlT119IQX_qc8878TElaRn4wXMOdi2BXBMWDFbchykF0T220WoUr_n9fz-6xdQ0kT2m7hoZNFbFudHDkpPOdv4x2tKmX4kwE8BrbotHltuCPOdimaMOlj1tmjChSNqCpoU6w6egFVbDNA";
-        postItems.add(postItemParty)
-
-        val postItemExercise = Post(
-                "Exercise",
-                "https://bloximages.chicago2.vip.townnews.com/greenevillesun.com/content/tncms/assets/v3/editorial/1/78/178c57a5-acfe-535e-ac2e-de2db173ace0/5f43c2f6edeeb.image.jpg?resize=400%2C600",
-                "Whenever I feel the need to exercise, I like down until it goes away."
-        )
-        postItems.add(postItemExercise)
-
-        val postItemNature = Post(
-                "Nature",
-                "https://i.pinimg.com/originals/e0/3f/0a/e03f0aa3ff39bcd17c40b488ba732067.jpg",
-                "In every walk in with nature on receives for more tha he seeks."
-        )
-        postItems.add(postItemNature)
-
-        postViewPager.adapter = PostAdapter(postItems)
-
+    private fun toPostAdapter(listPost: ArrayList<Post>) {
+        postViewPager.adapter = PostAdapter(listPost)
         fab1.setOnClickListener {
             val intent = Intent(this, DetailsPostActivity::class.java)
-            intent.putExtra("post", postItems[postViewPager.currentItem])
+            intent.putExtra("post", listPost[postViewPager.currentItem])
             startActivity(intent)
         }
-
     }
 }

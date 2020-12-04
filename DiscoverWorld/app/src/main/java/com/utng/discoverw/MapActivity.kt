@@ -11,15 +11,19 @@ import com.google.android.gms.maps.model.MarkerOptions
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private lateinit var title: String
+    private var lat: Double = 21.15794952216306
+    private var long: Double = -100.93435016893258
+
     private lateinit var map: GoogleMap
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
 
         val bundle = intent.extras
-        val title = bundle?.getString("title")
-        val lat = bundle?.getBoolean("lat")
-        val long = bundle?.getBoolean("long")
+        title = bundle?.getString("title")!!//.toString()
+        lat = bundle.getDouble("lat")
+        long = bundle.getDouble("long")
 
         createFragment()
     }
@@ -36,8 +40,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun createMarker() {
-        val coordinates = LatLng(21.15794952216306, -100.93435016893258)
-        val marker = MarkerOptions().position(coordinates).title("Mi playa favorita")
+        val coordinates = LatLng(lat, long)
+        val marker = MarkerOptions().position(coordinates).title(title)
         map.addMarker(marker)
         map.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(coordinates, 18f),

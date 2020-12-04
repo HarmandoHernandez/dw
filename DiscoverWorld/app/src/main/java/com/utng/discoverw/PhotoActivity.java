@@ -271,10 +271,10 @@ public class PhotoActivity extends AppCompatActivity {
         Map<String, Object> postUser = new HashMap<>();
         postUser.put(namePost, namePost);
 
-        /** Asigna al usuario **/
+        /** Asigna al usuario los poat propios **/
         ddBb.collection("users")
                 .document(aAuth.getCurrentUser().getUid())
-                .collection("posts")// yyyyMMdd_HH-mm-ss_UID
+                .collection("posts")
                 .add(postUser).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
