@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.viewpager2.widget.ViewPager2
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -104,14 +103,14 @@ class HomeActivity : AppCompatActivity() {
         if (nameNew != nameOld) {
             docRef
                     .update("displayName", photoNew)
-                    .addOnSuccessListener { Log.d("TAGX", "DocumentSnapshot successfully updated!") }
+                    .addOnSuccessListener { Log.d("TAG", "DocumentSnapshot successfully updated!") }
                     .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
         }
         if (photoNew != photoOld) {
             docRef
                     .update("photoUrl", photoNew)
-                    .addOnSuccessListener { Log.d("TAGX", "DocumentSnapshot successfully updated!") }
-                    .addOnFailureListener { e -> Log.w("TAGX", "Error updating document", e) }
+                    .addOnSuccessListener { Log.d("TAG", "DocumentSnapshot successfully updated!") }
+                    .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
         }
     }
 
@@ -123,10 +122,10 @@ class HomeActivity : AppCompatActivity() {
 
         ddBb.collection("users").document(uid).set(map)
                 .addOnSuccessListener {
-                    println("DocumentSnapshot added")
+                    Log.i("TAG", "DocumentSnapshot added")
                 }
                 .addOnFailureListener { e ->
-                    println("Error adding document $e")
+                    Log.i("TAG", "Error adding document $e")
                 }
     }
 
@@ -142,42 +141,45 @@ class HomeActivity : AppCompatActivity() {
      * Example Post with hard code
      */
     private fun posts() {
-        var postItems = arrayListOf<Post>()
+        val postItems = arrayListOf<Post>()
         val docRef = ddBb.collection("posts")
-        docRef.get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        for (post in document.documents){
-                            postItems.add(Post(
-                                    post.data?.get("title").toString(),
-                                    post.id, // Only photo's name
-                                    post.data?.get("description").toString(),
-                                    post.data?.get("lat").toString(),
-                                    post.data?.get("long").toString()))
-                        }
-                        setUrlPosts(postItems)
-                    } else {
-                        Log.d(this.localClassName, "No such Posts")
-                    }
+        docRef.get().addOnSuccessListener { document ->
+            if (document != null) {
+                for (post in document.documents) {
+                    postItems.add(Post(
+                            post.id,
+                            post.data?.get("title").toString(),
+                            "",
+                            post.data?.get("description").toString(),
+                            post.data?.get("lat").toString(),
+                            post.data?.get("long").toString()))
+
+                    if (postItems.size == document.documents.size) getUrlPosts(postItems)
                 }
+            } else {
+                Log.d(this.localClassName, "No such Posts")
+            }
+        }
                 .addOnFailureListener { exception ->
                     Log.d(this.localClassName, "get Posts failed with ", exception)
                 }
     }
 
-    private fun setUrlPosts(listPost: ArrayList<Post>) {
-        var newListPost = listPost
+    private fun getUrlPosts(listPost: ArrayList<Post>) {
         var i = 0
-        for (post in listPost){
-            storageRef.child(post.image).downloadUrl.addOnSuccessListener {
-                println(it.toString())
-                newListPost[i].image = it.toString()
-                i++
-            }.addOnCompleteListener {
-                if (i == listPost.size) {
-                    toPostAdapter(newListPost)
+        for ((index, element) in listPost.withIndex()) {
+            storageRef.child(element.key).downloadUrl.addOnCompleteListener {
+                if (it.isSuccessful) {
+                    listPost[index].image = it.result.toString()
+                    i++
+                    if (i == listPost.size) {
+                        toPostAdapter(listPost)
+                    }
+                } else {
+                    Log.w("ERROR", "ERROR AL OBTENER IMAGEN")
                 }
             }
+
         }
     }
 

@@ -84,7 +84,7 @@ class ProfileActivity : AppCompatActivity() {
         confirm.setNegativeButton("Cancelar", DialogInterface.OnClickListener { dialogo1, id -> /* Do something */ })
         confirm.show()
     }
-
+/*
     private fun menu() {
         val listPostSaves = ArrayList<Post>()
         listPostSaves.add(Post("Celebration",
@@ -116,8 +116,8 @@ class ProfileActivity : AppCompatActivity() {
             intent.putExtra("post", listPostSaves[position])
             startActivity(intent)
         }
-
     }
+*/
 
     /**
      * Throw screen Auth if there isn't email

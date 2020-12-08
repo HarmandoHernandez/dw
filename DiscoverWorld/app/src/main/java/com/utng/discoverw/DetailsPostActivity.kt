@@ -2,6 +2,7 @@ package com.utng.discoverw
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -49,17 +50,17 @@ class DetailsPostActivity : AppCompatActivity() {
 
         savePost.setOnClickListener {
             val map = mutableMapOf<String, Any>()
-            map[topic.image] = topic.image
+            map["key"] = topic.key
 
             ddBb.collection("users")
                     .document(uid)
                     .collection("saves")
                     .add(map)
                     .addOnSuccessListener {
-                        println("DocumentSnapshot added")
+                        Log.i("INFO","Post saved")
                     }
                     .addOnFailureListener { e ->
-                        println("Error adding document $e")
+                        Log.w("ERROR","Post save error $e")
                     }
             savePost.setImageResource(R.drawable.ic_bookmark)
         }
