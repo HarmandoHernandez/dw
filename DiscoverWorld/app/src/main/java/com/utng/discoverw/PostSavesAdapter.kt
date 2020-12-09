@@ -20,7 +20,7 @@ class PostSavesAdapter(
         layout.postTitle.text = topic.title
         Picasso.with(mContext)
                 .load(topic.image)
-                .into(layout.postImage);
+                .into(layout.postImage)
 
         return layout
     }

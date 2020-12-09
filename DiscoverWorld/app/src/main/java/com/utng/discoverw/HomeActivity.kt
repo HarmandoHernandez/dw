@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -34,7 +35,6 @@ class HomeActivity : AppCompatActivity() {
      */
     private fun setup() {
         account()
-        posts()
         fab.setOnClickListener {
             //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show()
             startActivity(Intent(this, ProfileActivity::class.java))
@@ -51,6 +51,7 @@ class HomeActivity : AppCompatActivity() {
         if (email == "") {
             openAuth()
         }
+        posts()
     }
 
     /**
@@ -144,7 +145,7 @@ class HomeActivity : AppCompatActivity() {
         val postItems = arrayListOf<Post>()
         val docRef = ddBb.collection("posts")
         docRef.get().addOnSuccessListener { document ->
-            if (document != null) {
+            if (document != null && document.documents.size > 0) {
                 for (post in document.documents) {
                     postItems.add(Post(
                             post.id,
@@ -158,6 +159,7 @@ class HomeActivity : AppCompatActivity() {
                 }
             } else {
                 Log.d(this.localClassName, "No such Posts")
+                Toast.makeText(this, "No se encontraron Post", Toast.LENGTH_SHORT).show()
             }
         }
                 .addOnFailureListener { exception ->

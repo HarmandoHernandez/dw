@@ -3,6 +3,7 @@ package com.utng.discoverw
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -38,23 +39,24 @@ class PostSavesActivity : AppCompatActivity() {
                 .collection("saves")
         docRef.get()
                 .addOnSuccessListener { document ->
-                    if (document != null) {
-                        for (saved in document.documents){
+                    if (document != null && document.documents.size > 0) {
+                        for (saved in document.documents) {
                             postKeys.add(saved.data?.get("key").toString())
                         }
                         getPosts(postKeys)
                     } else {
                         Log.d(this.localClassName, "No such Posts")
+                        Toast.makeText(this, "No se encontraron Post", Toast.LENGTH_SHORT).show()
                     }
                 }
                 .addOnFailureListener { exception ->
                     Log.d(this.localClassName, "get Posts failed with ", exception)
+                    Toast.makeText(this, "No se ha podido obtener ningun dato", Toast.LENGTH_SHORT).show()
                 }
     }
 
     private fun getPosts(listKeys: ArrayList<String>) {
         val postItems = arrayListOf<Post>()
-        //var i = 0
         for (key in listKeys) {
             val docRef = ddBb.collection("posts").document(key)
             docRef.get().addOnCompleteListener {
@@ -66,7 +68,6 @@ class PostSavesActivity : AppCompatActivity() {
                         it.result?.data?.get("lat").toString(),
                         it.result?.data?.get("long").toString()
                 ))
-                //i++
                 if (postItems.size == listKeys.size) {
                     getUrlPosts(postItems)
                 }
@@ -87,7 +88,7 @@ class PostSavesActivity : AppCompatActivity() {
                         toPostAdapter(listPost)
                     }
                 } else {
-                    Log.w("ERROR","ERROR AL OBTENER IMAGEN")
+                    Log.w("ERROR", "ERROR AL OBTENER IMAGEN")
                 }
             }
         }

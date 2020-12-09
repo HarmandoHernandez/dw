@@ -228,19 +228,19 @@ public class PhotoActivity extends AppCompatActivity {
                 // Handle unsuccessful uploads
                 loading.dismiss();
                 Toast.makeText(PhotoActivity.this, "No se pudo realizar la publicacion", Toast.LENGTH_SHORT).show();
+                finish();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.i("TAG", "taskSnapshot.getMetadata()" + taskSnapshot.getMetadata());
+                registerPost();
+
                 loading.dismiss();
-                // imageRef.push().child("urifoto").setValue(task.getResult().toString()); TODO : Guardar en FireStore
                 Toast.makeText(PhotoActivity.this, "Publicacion Exitosa", Toast.LENGTH_SHORT).show();
+                finish();
             }
         });
-
-        /** Ejecuta registerPost**/
-        registerPost();
     }
 
     private void registerPost() {
@@ -269,7 +269,7 @@ public class PhotoActivity extends AppCompatActivity {
         });
 
         Map<String, Object> postUser = new HashMap<>();
-        postUser.put(namePost, namePost);
+        postUser.put("key", namePost);
 
         /** Asigna al usuario los poat propios **/
         ddBb.collection("users")
@@ -289,12 +289,15 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     private boolean correctData() {
-        // TODO : Validar que sea de 100 caracteres el titulo y 150 de de descripcion
         if (editPostTitle.getText().length() > 1 && editPostDescription.getText().length() > 1) {
-            Toast.makeText(PhotoActivity.this, "Datos llenados", Toast.LENGTH_SHORT).show();
-            return true;
+            if(editPostTitle.getText().length() < 31 && editPostDescription.getText().length() > 101){
+                return true;
+            } else {
+                Toast.makeText(PhotoActivity.this, "El titulo no puede ser mayor a 30 caracteres \n Y la descripcion no puede ser mayor a 100 caracteres", Toast.LENGTH_SHORT).show();
+                return false;
+            }
         } else {
-            Toast.makeText(PhotoActivity.this, "Datos NO llenados", Toast.LENGTH_SHORT).show();
+            Toast.makeText(PhotoActivity.this, "Favor de llenar todos los campos", Toast.LENGTH_SHORT).show();
             return false;
         }
     }
