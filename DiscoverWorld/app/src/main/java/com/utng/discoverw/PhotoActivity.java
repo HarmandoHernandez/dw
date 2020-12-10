@@ -290,7 +290,7 @@ public class PhotoActivity extends AppCompatActivity {
 
     private boolean correctData() {
         if (editPostTitle.getText().length() > 1 && editPostDescription.getText().length() > 1) {
-            if(editPostTitle.getText().length() < 31 && editPostDescription.getText().length() > 101){
+            if(editPostTitle.getText().length() < 31 && editPostDescription.getText().length() < 101){
                 return true;
             } else {
                 Toast.makeText(PhotoActivity.this, "El titulo no puede ser mayor a 30 caracteres \n Y la descripcion no puede ser mayor a 100 caracteres", Toast.LENGTH_SHORT).show();
