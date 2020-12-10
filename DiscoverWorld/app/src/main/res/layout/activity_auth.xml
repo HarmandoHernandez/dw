@@ -8,32 +8,30 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:contentDescription="@string/app_name"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/discover_world_icon_iii"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/discover_world"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.267"/>
+        app:layout_constraintVertical_bias="0.267" />
 
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="250dp"
-        android:layout_height="55dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/btn_login"
-        android:text="@string/app_login"
-        android:textColor="@color/colorAccent"
+        android:drawableLeft="@drawable/ic_flight"
 
-        android:drawableLeft="@mipmap/ic_google"
-        android:drawableStart="@mipmap/ic_google"
+        android:text="@string/app_login"
+        android:textColor="@color/colorWithe"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="RtlSymmetry" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView"
@@ -43,7 +41,6 @@
         android:text="@string/app_createBy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
